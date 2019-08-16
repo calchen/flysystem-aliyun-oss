@@ -17,5 +17,12 @@
         "psr-4": {
             "Calchen\\Flysystem\\AliyunOss\\": "src/"
         }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Calchen\\Flysystem\\AliyunOss\\AliyunOssServiceProvider"
+            ]
+        }
     }
 }
