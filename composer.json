@@ -1,0 +1,21 @@
+{
+    "name": "calchen/flysystem-aliyun-oss",
+    "description": "Aliyun OSS filesystem storage for Laravel",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "陈恺垣",
+            "email": "contact@chenky.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.5.9",
+        "league/flysystem": "~1.0.53",
+        "aliyuncs/oss-sdk-php": "~2.3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Calchen\\Flysystem\\AliyunOss\\": "src/"
+        }
+    }
+}
