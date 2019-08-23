@@ -33,7 +33,7 @@ class AliyunOssServiceProvider extends ServiceProvider
                 $prefix = $config['prefix'];
             }
 
-            $client = new OssClient($accessId, $accessKey, $endPoint, AliyunOssAdapter::isEndpointCNAMEDomain($endPoint));
+            $client = new OssClient($accessId, $accessKey, $endPoint, AliyunOssAdapter::isEndpointCnameDomain($endPoint));
             $adapter = new AliyunOssAdapter($client, $bucket, $prefix, [
                 'endpoint' => $endPoint,
                 'bucket' => $bucket,
