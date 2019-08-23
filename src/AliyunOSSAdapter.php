@@ -482,7 +482,7 @@ class AliyunOssAdapter extends AbstractAdapter
      */
     public static function isEndpointCNAMEDomain($endpoint)
     {
-        return static::endsWith($endpoint, ".aliyuncs.com") &&
+        return !static::endsWith($endpoint, ".aliyuncs.com") &&
             !OssUtil::isIPFormat(static::getEndpointDomain($endpoint));
     }
 
