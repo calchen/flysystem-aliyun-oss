@@ -1,4 +1,6 @@
-<h1 align="center"> 用于阿里云对象存储（OSS）的 Flysystem Adapter </h1>
+<h1 align="center"> flysystem-aliyun-oss </h1>
+
+<p align="center"> 用于阿里云对象存储（OSS）的 Flysystem 适配器 </p>
 
 <p align="center">
     <a href="https://packagist.org/packages/calchen/flysystem-aliyun-oss">
@@ -16,7 +18,7 @@
 
 这是一个基于阿里云 OSS SDK（2.3.0 及以上）的 Flysystem Adapter
 
-受到 [apollopy/flysystem-aliyun-oss](https://github.com/apollopy/flysystem-aliyun-oss) 的启发，感谢该项目给予的帮助
+受到 [apollopy/flysystem-aliyun-oss](https://github.com/apollopy/flysystem-aliyun-oss) 的启发
 
 ## 安装
 
@@ -83,7 +85,7 @@ $app->register(Calchen\Flysystem\AliyunOss\AliyunOssServiceProvider::class);
 
 地域节点可以是域名，也可以是以 `http://域名` 或  `https://域名`。
 
-如果地域节点是域名则默认使用 https，如果需要使用 http 请使用 `http://域名`
+如果地域节点是域名则默认使用 HTTPS，如果需要使用 HTTP 请使用 `http://域名`
 
 #### 用户域名（CNAME domain）
 
@@ -91,7 +93,7 @@ $app->register(Calchen\Flysystem\AliyunOss\AliyunOssServiceProvider::class);
 
 #### CDN 基础路径（CDN base URL）
 
-如果您启用了 CDN 且 CDN 回源至阿里云 OSS，那么建议您设置 cdn_base_url，设置此项后您获取到的文件 URL 将全部以 cdn_base_url 开头
+如果您为阿里云 OSS 存储空间启用了 CDN（无论是不是阿里云 CDN），那么建议您设置 cdn_base_url，设置此项后您获取到的文件 URL 将全部以 cdn_base_url 开头
 
 #### 安全提醒
 
