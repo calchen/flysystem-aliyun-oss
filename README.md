@@ -1,8 +1,22 @@
-# 用于阿里云对象存储（OSS）的 Flysystem Adapter
+<h1 align="center"> 用于阿里云对象存储（OSS）的 Flysystem Adapter </h1>
+
+<p align="center">
+    <a href="https://packagist.org/packages/calchen/flysystem-aliyun-oss">
+        <img alt="Latest Stable Version" src="https://img.shields.io/packagist/v/calchen/flysystem-aliyun-oss.svg">
+    </a>
+    <a href="https://packagist.org/packages/calchen/flysystem-aliyun-oss">
+        <img alt="Total Downloads" src="https://img.shields.io/packagist/dt/calchen/flysystem-aliyun-oss.svg">
+    </a>
+    <a href="https://github.com/calchen/flysystem-aliyun-oss/blob/master/LICENSE">
+        <img alt="License" src="https://img.shields.io/github/license/calchen/flysystem-aliyun-oss.svg">
+    </a>
+</p>
+
+> [English](https://github.com/calchen/flysystem-aliyun-oss/blob/master/README_en.md)
 
 这是一个基于阿里云 OSS SDK（2.3.0 及以上）的 Flysystem Adapter
 
-开发过程中收到了 [apollopy/flysystem-aliyun-oss](https://github.com/apollopy/flysystem-aliyun-oss) 的启发，感谢项目给予的帮助
+受到 [apollopy/flysystem-aliyun-oss](https://github.com/apollopy/flysystem-aliyun-oss) 的启发，感谢该项目给予的帮助
 
 ## 安装
 
@@ -63,25 +77,26 @@ $app->register(Calchen\Flysystem\AliyunOss\AliyunOssServiceProvider::class);
 | cdn_base_url      	| 否   	| CDN 基础路径                         	| 见下文“CDN 基础路径”  	    |
 | prefix            	| 否   	| 保存路径的统一前缀                   	| -                     	|
 
-#### 地域节点（Endpoint）
+#### 地域节点（endpoint）
 
-地域节点可以是域名，也可以是以 http 或 https 开头的 URL。
+官方地域节点：[访问域名和数据中心](https://help.aliyun.com/document_detail/31837.html)
+
+地域节点可以是域名，也可以是以 `http://域名` 或  `https://域名`。
 
 如果地域节点是域名则默认使用 https，如果需要使用 http 请使用 `http://域名`
 
-#### 用户域名
+#### 用户域名（CNAME domain）
 
 设置成功并正常解析至阿里云 OSS 访问域名的用户域名可作为地域节点使用，如果是解析到 CDN 节点的用户域名是不可以作为地域节点使用的！！！
 
-#### CDN 基础路径
+#### CDN 基础路径（CDN base URL）
 
-如果您启用了 CDN 且 CDN 回源至阿里云 OSS，那么建议您设置 cdn_base_url，设置此项后您获取到的文件 URL 将全部以 cdn_base_url 开头。
+如果您启用了 CDN 且 CDN 回源至阿里云 OSS，那么建议您设置 cdn_base_url，设置此项后您获取到的文件 URL 将全部以 cdn_base_url 开头
 
 #### 安全提醒
 
-为了安全，请务必不要使用主账户的 AccessKey ID 和 AccessKey Key Secret
+为了安全，请使用子账户的 AccessKey ID 和 AccessKey Key Secret，请务必不要使用主账户的 AccessKey ID 和 AccessKey Key Secret
 
+## 开源协议
 
-## License
-
-MIT
+[MIT](http://opensource.org/licenses/MIT)
