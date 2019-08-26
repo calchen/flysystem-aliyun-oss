@@ -1,27 +1,86 @@
-<h1 align="center"> laravel-aliyun-oss </h1>
+# 用于阿里云对象存储（OSS）的 Flysystem Adapter
 
-<p align="center"> Aliyun OSS filesystem storage for Laravel.</p>
+这是一个基于阿里云 OSS SDK（2.3.0 及以上）的 Flysystem Adapter
 
+开发过程中收到了 [apollopy/flysystem-aliyun-oss](https://github.com/apollopy/flysystem-aliyun-oss) 的启发，感谢项目给予的帮助
 
-## Installing
+## 安装
 
 ```shell
-$ composer require calchen/laravel-aliyun-oss -vvv
+$ composer require calchen/flysystem-aliyun-oss
 ```
 
-## Usage
+### Laravel
 
-TODO
+如果您的 Laravel 版本为 5.5 及以上，您不需要手动的配置文件中添加 `AliyunOssServiceProvider` Laravel 自带的扩展包发现机制会处理好一切。如是小于 5.5 版本那么需要您进行如下操作: 
 
-## Contributing
+打开位于 `app/Providers` 的 `AppServiceProvider.php` 文件并在 `register` 函数中添加如下内容：
+```php
+$this->app->register(\Calchen\Flysystem\AliyunOss\AliyunOssServiceProvider::class);
+```
+您也可以在配置文件 `config/app.php` 中的 `providers` 中添加如下内容：
+```php
+Calchen\Flysystem\AliyunOss\AliyunOssServiceProvider::class,
+```
+只需选择以上操作中的一种，即可加载本扩招包。
 
-You can contribute in one of three ways:
+### Lumen
 
-1. File bug reports using the [issue tracker](https://github.com/calchen/laravel-aliyun-oss/issues).
-2. Answer questions or fix bugs on the [issue tracker](https://github.com/calchen/laravel-aliyun-oss/issues).
-3. Contribute new features or update the wiki.
+Lumen 并未移植扩展包自动发现机制，所以需要手动加载扩展包并复制配置文件。
 
-_The code contribution process is not very formal. You just need to make sure that you follow the PSR-0, PSR-1, and PSR-2 coding guidelines. Any new code contributions must be accompanied by unit tests where applicable._
+打开配置文件 `bootstrap/app.php` 并在大约 81 行左右添加如下内容：
+```php
+$app->register(Calchen\Flysystem\AliyunOss\AliyunOssServiceProvider::class);
+```
+
+将文件系统配置文件从 `vendor/laravel/lumen-framework/config.php` 复制到 `config/filesystems.php`
+
+## 配置
+
+打开配置文件 `config/filesystems.php` 并在 `disks` 中添加如下内容：
+```php
+'oss' => [
+    'driver' => 'oss',
+    'access_id' => env('ALIYUN_ACCESS_KEY_ID'),
+    'access_key_secret' => env('ALIYUN_ACCESS_KEY_SECRET'),
+    'bucket' => env('ALIYUN_OSS_BUCKET'),
+    'endpoint' => env('ALIYUN_OSS_ENDPOINT'),
+    'cdn_base_url' => env('ALIYUN_OSS_CDN_BASE_URL'),  // 可选
+    'prefix' => '',                                    // 可选
+],
+```
+
+如果您想将阿里云 OSS 作为默认的存储方式，那么可以在 `.env` 文件中增加配置项 `FILESYSTEM_DRIVER=oss`
+
+### 配置说明
+| 配置项                	| 必须 	| 说明                                 	| 备注                  	|
+|-------------------	|------	|--------------------------------------	|-----------------------	|
+| driver            	| 是   	| 驱动名称                             	| 默认值：oss，不可修改   	|
+| access_id         	| 是   	| 用于身份验证的 AccessKey ID          	| 见下文“安全提醒”         	|
+| access_key_secret 	| 是   	| 用于身份验证的  AccessKey Key Secret 	| 见下文“安全提醒”      	    |
+| bucket            	| 是   	| 存储空间名称                         	| -                     	|
+| endpoint          	| 是   	| 地域节点                             	| 见下文“地域节点”      	    |
+| cdn_base_url      	| 否   	| CDN 基础路径                         	| 见下文“CDN 基础路径”  	    |
+| prefix            	| 否   	| 保存路径的统一前缀                   	| -                     	|
+
+#### 地域节点（Endpoint）
+
+地域节点可以是域名，也可以是以 http 或 https 开头的 URL。
+
+如果地域节点是域名则默认使用 https，如果需要使用 http 请使用 `http://域名`
+
+#### 用户域名
+
+设置成功并正常解析至阿里云 OSS 访问域名的用户域名可作为地域节点使用，如果是解析到 CDN 节点的用户域名是不可以作为地域节点使用的！！！
+
+#### CDN 基础路径
+
+如果您启用了 CDN 且 CDN 回源至阿里云 OSS，那么建议您设置 cdn_base_url，设置此项后您获取到的文件 URL 将全部以 cdn_base_url 开头。
+
+#### 安全提醒
+
+为了安全，请务必不要使用主账户的 AccessKey ID 和 AccessKey Key Secret
+
 
 ## License
 

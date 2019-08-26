@@ -8,14 +8,11 @@ use League\Flysystem\Adapter\Polyfill\StreamedTrait;
 use League\Flysystem\Config;
 use League\Flysystem\Util;
 use OSS\Core\OssException;
-use OSS\Core\OssUtil;
 use OSS\OssClient;
 
 class AliyunOssAdapter extends AbstractAdapter
 {
-
-    use StreamedTrait;
-    use NotSupportingVisibilityTrait;
+    use StreamedTrait, NotSupportingVisibilityTrait, AliyunHelperTrait;
     /**
      * @var OssClient
      */
@@ -25,6 +22,16 @@ class AliyunOssAdapter extends AbstractAdapter
      * @var string
      */
     protected $bucket;
+
+    /**
+     * @var string
+     */
+    protected $endpoint;
+
+    /**
+     * @var string
+     */
+    protected $cdnBaseUrl;
 
     /**
      * @var array
@@ -45,13 +52,23 @@ class AliyunOssAdapter extends AbstractAdapter
      *
      * @param OssClient $client
      * @param string $bucket
-     * @param string $prefix
+     * @param string $endpoint
+     * @param string|null $cdnBaseUrl
+     * @param string|null $prefix
      * @param array $options
      */
-    public function __construct(OssClient $client, $bucket, $prefix = null, array $options = [])
-    {
+    public function __construct(
+        OssClient $client,
+        $bucket,
+        $endpoint,
+        $cdnBaseUrl = null,
+        $prefix = null,
+        array $options = []
+    ) {
         $this->client = $client;
         $this->bucket = $bucket;
+        $this->endpoint = $endpoint;
+        $this->cdnBaseUrl = $cdnBaseUrl;
         $this->setPathPrefix($prefix);
         $this->options = array_merge($this->options, $options);
     }
@@ -67,16 +84,6 @@ class AliyunOssAdapter extends AbstractAdapter
     }
 
     /**
-     * Set the OSSClient bucket.
-     *
-     * @param $bucket
-     */
-    public function setBucket($bucket)
-    {
-        $this->bucket = $bucket;
-    }
-
-    /**
      * Get the OSSClient instance.
      *
      * @return OSSClient
@@ -84,6 +91,22 @@ class AliyunOssAdapter extends AbstractAdapter
     public function getClient()
     {
         return $this->client;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEndpoint()
+    {
+        return $this->endpoint;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCdnBaseUrl()
+    {
+        return $this->cdnBaseUrl;
     }
 
     /**
@@ -97,11 +120,9 @@ class AliyunOssAdapter extends AbstractAdapter
     {
         $object = $this->applyPathPrefix($path);
 
-        if (is_null($CDNBaseURL = $this->options['cdn_base_url'])) {
-            return static::getEndpointBaseURL($this->options['endpoint'])."/{$object}";
-        }
-
-        return "{$CDNBaseURL}/{$object}";
+        // 默认返回 endpoint 域名的 URL，如果传了 CDN 的 baseUrl 就返回使用 CDN 域名的 URL
+        return is_null($this->cdnBaseUrl) ?
+            static::getEndpointBaseURL($this->endpoint)."/{$object}" : "{$this->cdnBaseUrl}/{$object}";
     }
 
     /**
@@ -124,19 +145,30 @@ class AliyunOssAdapter extends AbstractAdapter
             return false;
         }
 
-        return $url;
+        // 默认返回 endpoint 域名的 URL，如果传了 CDN 的 baseUrl 就返回使用 CDN 域名的 URL
+        return is_null($this->cdnBaseUrl) ?
+            $url : str_replace(static::getEndpointBaseURL($this->endpoint), $this->cdnBaseUrl, $url);
     }
 
+    /**
+     * Write a new file.
+     *
+     * @param string $path
+     * @param string $contents
+     * @param Config $config Config object
+     *
+     * @return array|false false on failure file meta data on success
+     */
     public function write($path, $contents, Config $config)
     {
         $object = $this->applyPathPrefix($path);
         $options = $this->getOptionsFromConfig($config);
 
-        if (! isset($options[OssClient::OSS_LENGTH])) {
+        if (!isset($options[OssClient::OSS_LENGTH])) {
             $options[OssClient::OSS_LENGTH] = Util::contentSize($contents);
         }
 
-        if (! isset($options[OssClient::OSS_CONTENT_TYPE])) {
+        if (!isset($options[OssClient::OSS_CONTENT_TYPE])) {
             $options[OssClient::OSS_CONTENT_TYPE] = Util::guessMimeType($path, $contents);
         }
 
@@ -154,6 +186,15 @@ class AliyunOssAdapter extends AbstractAdapter
         return $result;
     }
 
+    /**
+     * Update a file.
+     *
+     * @param string $path
+     * @param string $contents
+     * @param Config $config Config object
+     *
+     * @return array|false false on failure file meta data on success
+     */
     public function update($path, $contents, Config $config)
     {
         $this->write($path, $contents, $config);
@@ -460,66 +501,5 @@ class AliyunOssAdapter extends AbstractAdapter
         }
 
         return $options;
-    }
-
-    public static function startsWith($haystack, $needle)
-    {
-        return substr_compare($haystack, $needle, 0, strlen($needle)) === 0;
-    }
-
-    public static function endsWith($haystack, $needle)
-    {
-        return substr_compare($haystack, $needle, -strlen($needle)) === 0;
-    }
-
-    /**
-     * Endpoint 不以 ".aliyuncs.com" 结尾的，都认为是用户域名，及 CNAME domain
-     * @link https://help.aliyun.com/document_detail/31837.html 访问域名和数据中心
-     *
-     * @param $endpoint
-     *
-     * @return boolean
-     */
-    public static function isEndpointCnameDomain($endpoint)
-    {
-        return !static::endsWith($endpoint, ".aliyuncs.com") &&
-            !OssUtil::isIPFormat(static::getEndpointDomain($endpoint));
-    }
-
-    /**
-     * 获取 Endpoint 的域名
-     *
-     * @param $endpoint
-     *
-     * @return bool|string
-     */
-    public static function getEndpointDomain($endpoint)
-    {
-        $domain = $endpoint;
-        if (static::startsWith($endpoint, 'http://')) {
-            $domain = substr($endpoint, strlen('http://'));
-        } elseif (static::startsWith($endpoint, 'https://')) {
-            $domain = substr($endpoint, strlen('https://'));
-        }
-
-        return $domain;
-    }
-
-    /**
-     * 获取 Endpoint 的 baseUrl 默认为 http
-     *
-     * @param $endpoint
-     *
-     * @return string
-     */
-    public static function getEndpointBaseURL($endpoint)
-    {
-        if (static::startsWith($endpoint, 'http://') ||
-            static::startsWith($endpoint, 'https://')
-        ) {
-            return $endpoint;
-        } else {
-            return "http://{$endpoint}";
-        }
     }
 }

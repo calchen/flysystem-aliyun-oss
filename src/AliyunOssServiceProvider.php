@@ -2,12 +2,11 @@
 
 namespace Calchen\Flysystem\AliyunOss;
 
-use Storage;
-use OSS\OssClient;
-use League\Flysystem\Filesystem;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
-use ApolloPY\Flysystem\AliyunOss\Plugins\PutFile;
-use ApolloPY\Flysystem\AliyunOss\Plugins\SignedDownloadUrl;
+use League\Flysystem\Filesystem;
+use OSS\OssClient;
 
 /**
  * Class AliyunOssServiceProvider
@@ -24,25 +23,25 @@ class AliyunOssServiceProvider extends ServiceProvider
     {
         Storage::extend('oss', function ($app, $config) {
             $accessId = $config['access_id'];
-            $accessKey = $config['access_key'];
-            $endPoint = $config['endpoint'];
+            $accessKeySecret = $config['access_key_secret'];
             $bucket = $config['bucket'];
+            $endPoint = $config['endpoint'];
+            $cdnBaseUrl = Arr::get($config, 'cdn_base_url');
+            $prefix = Arr::get($config, 'prefix');
 
-            $prefix = null;
-            if (isset($config['prefix'])) {
-                $prefix = $config['prefix'];
-            }
+            // 这里使得 endpoint 默认为 https 开头
+            $endPoint = AliyunOssAdapter::getEndpointBaseURL($endPoint);
+            $cdnBaseUrl = is_null($cdnBaseUrl) ? null : trim($cdnBaseUrl, '/');
 
-            $client = new OssClient($accessId, $accessKey, $endPoint, AliyunOssAdapter::isEndpointCnameDomain($endPoint));
-            $adapter = new AliyunOssAdapter($client, $bucket, $prefix, [
-                'endpoint' => $endPoint,
-                'bucket' => $bucket,
-                'cdn_base_url' => empty($config['cdn_base_url']) ? null : trim($config['cdn_base_url'], '/')
-            ]);
+            $client = new OssClient(
+                $accessId,
+                $accessKeySecret,
+                $endPoint,
+                AliyunOssAdapter::isEndpointCnameDomain($endPoint)
+            );
+            $adapter = new AliyunOssAdapter($client, $bucket, $endPoint, $cdnBaseUrl, $prefix);
 
-            $filesystem = new Filesystem($adapter);
-
-            return $filesystem;
+            return new Filesystem($adapter);
         });
     }
 

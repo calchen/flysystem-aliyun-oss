@@ -1,6 +1,6 @@
 {
     "name": "calchen/flysystem-aliyun-oss",
-    "description": "Aliyun OSS filesystem storage for Laravel",
+    "description": "用于阿里云对象存储（OSS）的 Flysystem Adapter（Flysystem Adapter for Aliyun OSS）",
     "license": "MIT",
     "authors": [
         {
@@ -12,6 +12,9 @@
         "php": ">=5.5.9",
         "league/flysystem": "~1.0.53",
         "aliyuncs/oss-sdk-php": "~2.3.0"
+    },
+    "require-dev": {
+        "illuminate/support": "^5.8"
     },
     "autoload": {
         "psr-4": {
