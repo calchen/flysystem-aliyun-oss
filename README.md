@@ -16,7 +16,7 @@
 
 > [English](https://github.com/calchen/flysystem-aliyun-oss/blob/master/README_en.md)
 
-这是一个基于阿里云 OSS SDK（2.3.0 及以上）的 Flysystem Adapter
+这是一个基于阿里云 OSS SDK（2.3.0 及以上）的 Flysystem 适配器
 
 受到 [apollopy/flysystem-aliyun-oss](https://github.com/apollopy/flysystem-aliyun-oss) 的启发
 
