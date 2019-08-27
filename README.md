@@ -99,6 +99,10 @@ $app->register(Calchen\Flysystem\AliyunOss\AliyunOssServiceProvider::class);
 
 为了安全，请使用子账户的 AccessKey ID 和 AccessKey Key Secret，请务必不要使用主账户的 AccessKey ID 和 AccessKey Key Secret
 
+## 用法
+
+在 Laravel/Lumen 中可以使用 `\Storage::disk('oss')->temporaryUrl($filePath);` 来获取阿里云 OSS 私有存储空间中文件的带签名的 URL
+
 ## 开源协议
 
 [MIT](http://opensource.org/licenses/MIT)

@@ -96,9 +96,11 @@ If you config CDN service for your Aliyun OSS Bucket (Aliyun CDN or other CDN se
 
 #### Security
 
-请使用子账户的 AccessKey ID 和 AccessKey Key Secret，请务必不要使用主账户的 AccessKey ID 和 AccessKey Key Secret
+For security you should use AccessKey ID and AccessKey Key Secret of RAM users, and should never use AccessKey ID and AccessKey Key Secret of cloud account
 
-For security you should use AccessKey ID and AccessKey Key Secret of RAM users, and should never use AccessKey ID and AccessKey Key Secret of cloud account 
+## Usage
+
+If you are using Laravel or Lumen ,you can get signed URL from private bucket like this `\Storage::disk('oss')->temporaryUrl($filePath);` 
 
 ## License
 
