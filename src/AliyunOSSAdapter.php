@@ -135,12 +135,12 @@ class AliyunOssAdapter extends AbstractAdapter
      *
      * @throws \RuntimeException
      */
-    public function getTemporaryUrl($path, $expiration)
+    public function getTemporaryUrl($path, $expiration, array $config)
     {
         $object = $this->applyPathPrefix($path);
 
         try {
-            $url = $this->client->signUrl($this->bucket, $path, $expiration, OssClient::OSS_HTTP_GET, $object);
+            $url = $this->client->signUrl($this->bucket, $object, $expiration, OssClient::OSS_HTTP_GET, $config);
         } catch (OssException $e) {
             return false;
         }
