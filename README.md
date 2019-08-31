@@ -49,7 +49,7 @@ Lumen 并未移植扩展包自动发现机制，所以需要手动加载扩展�
 $app->register(Calchen\Flysystem\AliyunOss\AliyunOssServiceProvider::class);
 ```
 
-将文件系统配置文件从 `vendor/laravel/lumen-framework/config.php` 复制到 `config/filesystems.php`
+将文件系统配置文件从 `vendor/laravel/lumen-framework/filesystems.php` 复制到 `config/filesystems.php`
 
 ## 配置
 

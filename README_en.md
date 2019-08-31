@@ -46,7 +46,7 @@ Open your `bootstrap/app.php` and add this line
 $app->register(Calchen\Flysystem\AliyunOss\AliyunOssServiceProvider::class);
 ```
 
-Copy configuration file from `vendor/laravel/lumen-framework/config.php` to `config/filesystems.php`
+Copy configuration file from `vendor/laravel/lumen-framework/filesystems.php` to `config/filesystems.php`
 
 ## Configuration
 
