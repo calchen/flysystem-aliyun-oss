@@ -66,7 +66,7 @@ $app->register(Calchen\Flysystem\AliyunOss\AliyunOssServiceProvider::class);
 ],
 ```
 
-如果您想将阿里云 OSS 作为默认的存储方式，那么可以在 `.env` 文件中增加配置项 `FILESYSTEM_DRIVER=oss`
+如果您想将阿里云 OSS 作为默认的存储方式，那么可以在 `.env` 文件中设置配置项 `FILESYSTEM_DRIVER=oss`
 
 ### 配置说明
 | 配置项                	| 必须 	| 说明                                 	| 备注                  	|
