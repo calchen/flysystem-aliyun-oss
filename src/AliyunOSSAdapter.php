@@ -2,17 +2,19 @@
 
 namespace Calchen\Flysystem\AliyunOss;
 
+use Illuminate\Support\Str;
 use League\Flysystem\Adapter\AbstractAdapter;
 use League\Flysystem\Adapter\Polyfill\NotSupportingVisibilityTrait;
 use League\Flysystem\Adapter\Polyfill\StreamedTrait;
 use League\Flysystem\Config;
 use League\Flysystem\Util;
 use OSS\Core\OssException;
+use OSS\Core\OssUtil;
 use OSS\OssClient;
 
 class AliyunOssAdapter extends AbstractAdapter
 {
-    use StreamedTrait, NotSupportingVisibilityTrait, AliyunHelperTrait;
+    use StreamedTrait, NotSupportingVisibilityTrait;
     /**
      * @var OssClient
      */
@@ -43,19 +45,19 @@ class AliyunOssAdapter extends AbstractAdapter
      */
     protected static $mappingOptions = [
         'mimetype' => OssClient::OSS_CONTENT_TYPE,
-        'size' => OssClient::OSS_LENGTH,
+        'size'     => OssClient::OSS_LENGTH,
         'filename' => OssClient::OSS_CONTENT_DISPOSTION,
     ];
 
     /**
      * Constructor.
      *
-     * @param OssClient $client
-     * @param string $bucket
-     * @param string $endpoint
+     * @param OssClient   $client
+     * @param string      $bucket
+     * @param string      $endpoint
      * @param string|null $cdnBaseUrl
      * @param string|null $prefix
-     * @param array $options
+     * @param array       $options
      */
     public function __construct(
         OssClient $client,
@@ -128,7 +130,7 @@ class AliyunOssAdapter extends AbstractAdapter
     /**
      * Get a temporary URL for the file at the given path.
      *
-     * @param string $path
+     * @param string             $path
      * @param \DateTimeInterface $expiration
      *
      * @return string
@@ -164,11 +166,11 @@ class AliyunOssAdapter extends AbstractAdapter
         $object = $this->applyPathPrefix($path);
         $options = $this->getOptionsFromConfig($config);
 
-        if (!isset($options[OssClient::OSS_LENGTH])) {
+        if (! isset($options[OssClient::OSS_LENGTH])) {
             $options[OssClient::OSS_LENGTH] = Util::contentSize($contents);
         }
 
-        if (!isset($options[OssClient::OSS_CONTENT_TYPE])) {
+        if (! isset($options[OssClient::OSS_CONTENT_TYPE])) {
             $options[OssClient::OSS_CONTENT_TYPE] = Util::guessMimeType($path, $contents);
         }
 
@@ -210,7 +212,7 @@ class AliyunOssAdapter extends AbstractAdapter
      */
     public function rename($path, $newpath)
     {
-        if (!$this->copy($path, $newpath)) {
+        if (! $this->copy($path, $newpath)) {
             return false;
         }
 
@@ -357,7 +359,7 @@ class AliyunOssAdapter extends AbstractAdapter
      * List contents of a directory.
      *
      * @param string $directory
-     * @param bool $recursive
+     * @param bool   $recursive
      *
      * @return array
      * @throws OssException
@@ -375,9 +377,9 @@ class AliyunOssAdapter extends AbstractAdapter
         $maxKeys = 1000;
         $options = [
             'delimiter' => $delimiter,
-            'prefix' => $directory,
-            'max-keys' => $maxKeys,
-            'marker' => $nextMarker,
+            'prefix'    => $directory,
+            'max-keys'  => $maxKeys,
+            'marker'    => $nextMarker,
         ];
 
         $listObjectInfo = $this->client->listObjects($bucket, $options);
@@ -389,18 +391,18 @@ class AliyunOssAdapter extends AbstractAdapter
         foreach ($objectList as $objectInfo) {
             if ($objectInfo->getSize() === 0 && $directory === $objectInfo->getKey()) {
                 $result[] = [
-                    'type' => 'dir',
-                    'path' => $this->removePathPrefix(rtrim($objectInfo->getKey(), '/')),
+                    'type'      => 'dir',
+                    'path'      => $this->removePathPrefix(rtrim($objectInfo->getKey(), '/')),
                     'timestamp' => strtotime($objectInfo->getLastModified()),
                 ];
                 continue;
             }
 
             $result[] = [
-                'type' => 'file',
-                'path' => $this->removePathPrefix($objectInfo->getKey()),
+                'type'      => 'file',
+                'path'      => $this->removePathPrefix($objectInfo->getKey()),
                 'timestamp' => strtotime($objectInfo->getLastModified()),
-                'size' => $objectInfo->getSize(),
+                'size'      => $objectInfo->getSize(),
             ];
         }
 
@@ -410,8 +412,8 @@ class AliyunOssAdapter extends AbstractAdapter
                 $result = array_merge($result, $next);
             } else {
                 $result[] = [
-                    'type' => 'dir',
-                    'path' => $this->removePathPrefix(rtrim($prefixInfo->getPrefix(), '/')),
+                    'type'      => 'dir',
+                    'path'      => $this->removePathPrefix(rtrim($prefixInfo->getPrefix(), '/')),
                     'timestamp' => 0,
                 ];
             }
@@ -438,12 +440,12 @@ class AliyunOssAdapter extends AbstractAdapter
         }
 
         return [
-            'type' => 'file',
-            'dirname' => Util::dirname($path),
-            'path' => $path,
+            'type'      => 'file',
+            'dirname'   => Util::dirname($path),
+            'path'      => $path,
             'timestamp' => strtotime($result['last-modified']),
-            'mimetype' => $result['content-type'],
-            'size' => $result['content-length'],
+            'mimetype'  => $result['content-type'],
+            'size'      => $result['content-length'],
         ];
     }
 
@@ -494,12 +496,64 @@ class AliyunOssAdapter extends AbstractAdapter
     {
         $options = $this->options;
         foreach (static::$mappingOptions as $option => $ossOption) {
-            if (!$config->has($option)) {
+            if (! $config->has($option)) {
                 continue;
             }
             $options[$ossOption] = $config->get($option);
         }
 
         return $options;
+    }
+
+    /**
+     * endpoint 不以 ".aliyuncs.com" 结尾的且不是 IP 的都认为是用户域名，即 CNAME domain
+     *
+     * @link https://help.aliyun.com/document_detail/31837.html 访问域名和数据中心
+     *
+     * @param $endpoint
+     *
+     * @return boolean
+     */
+    public static function isEndpointCnameDomain($endpoint)
+    {
+        return ! Str::endsWith($endpoint, ".aliyuncs.com") &&
+            ! OssUtil::isIPFormat(static::getEndpointDomain($endpoint));
+    }
+
+    /**
+     * 获取 endpoint 的域名
+     *
+     * @param $endpoint
+     *
+     * @return bool|string
+     */
+    public static function getEndpointDomain($endpoint)
+    {
+        $domain = $endpoint;
+        if (Str::startsWith($endpoint, 'http://')) {
+            $domain = substr($endpoint, strlen('http://'));
+        } elseif (Str::startsWith($endpoint, 'https://')) {
+            $domain = substr($endpoint, strlen('https://'));
+        }
+
+        return $domain;
+    }
+
+    /**
+     * 获取以 endpoint 为域名的 base URL，默认为 https
+     *
+     * @param $endpoint
+     *
+     * @return string
+     */
+    public static function getEndpointBaseURL($endpoint)
+    {
+        if (Str::startsWith($endpoint, 'http://') ||
+            Str::startsWith($endpoint, 'https://')
+        ) {
+            return $endpoint;
+        } else {
+            return "https://{$endpoint}";
+        }
     }
 }

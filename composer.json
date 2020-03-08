@@ -1,6 +1,15 @@
 {
     "name": "calchen/flysystem-aliyun-oss",
     "description": "用于阿里云对象存储（OSS）的 Flysystem Adapter（Flysystem Adapter for Aliyun OSS）",
+    "keywords": [
+        "laravel",
+        "lumen",
+        "aliyun",
+        "oss",
+        "Object Storage Service",
+        "阿里云",
+        "象存储"
+    ],
     "license": "MIT",
     "authors": [
         {
@@ -10,11 +19,9 @@
     ],
     "require": {
         "php": ">=5.5.9",
-        "league/flysystem": "~1.0.53",
-        "aliyuncs/oss-sdk-php": "~2.3.0"
-    },
-    "require-dev": {
-        "illuminate/support": "^5.8"
+        "aliyuncs/oss-sdk-php": "~2.3.0",
+        "illuminate/support": "^5.5|^6.0|^7.0",
+        "league/flysystem": "~1.0.53"
     },
     "autoload": {
         "psr-4": {
