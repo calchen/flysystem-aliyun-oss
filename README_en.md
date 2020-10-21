@@ -3,6 +3,9 @@
 <p align="center"> Flysystem Adapter for Aliyun OSS </p>
 
 <p align="center">
+    <a href="https://github.styleci.io/repos/202755034">
+        <img alt="Style CI" src="https://github.styleci.io/repos/202755034/shield?style=flat">
+    </a>
     <a href="https://packagist.org/packages/calchen/flysystem-aliyun-oss">
         <img alt="Latest Stable Version" src="https://img.shields.io/packagist/v/calchen/flysystem-aliyun-oss.svg">
     </a>
