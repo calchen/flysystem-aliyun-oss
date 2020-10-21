@@ -505,23 +505,24 @@ class AliyunOssAdapter extends AbstractAdapter
     }
 
     /**
-     * endpoint 不以 ".aliyuncs.com" 结尾的且不是 IP 的都认为是用户域名，即 CNAME domain
+     * endpoint 不以 ".aliyuncs.com" 结尾的且不是 IP 的都认为是用户域名，即 CNAME domain.
      *
      * @link https://help.aliyun.com/document_detail/31837.html 访问域名和数据中心
      *
      * @param $endpoint
      *
-     * @return boolean
+     * @return bool
      */
     public static function isEndpointCnameDomain($endpoint)
     {
-        $domain = ".aliyuncs.com";
+        $domain = '.aliyuncs.com';
+
         return substr($endpoint, -1 * strlen($domain)) !== $domain &&
             ! OssUtil::isIPFormat(static::getEndpointDomain($endpoint));
     }
 
     /**
-     * 获取 endpoint 的域名
+     * 获取 endpoint 的域名.
      *
      * @param $endpoint
      *
@@ -532,7 +533,6 @@ class AliyunOssAdapter extends AbstractAdapter
         $domain = $endpoint;
         if (strpos($endpoint, 'http://') == 0) {
             $domain = substr($endpoint, strlen('http://'));
-
         } elseif (strpos($endpoint, 'https://') == 0) {
             $domain = substr($endpoint, strlen('https://'));
         }
@@ -541,7 +541,7 @@ class AliyunOssAdapter extends AbstractAdapter
     }
 
     /**
-     * 获取以 endpoint 为域名的 base URL，默认为 https
+     * 获取以 endpoint 为域名的 base URL，默认为 https.
      *
      * @param $endpoint
      *

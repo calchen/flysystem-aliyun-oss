@@ -9,8 +9,7 @@ use League\Flysystem\Filesystem;
 use OSS\OssClient;
 
 /**
- * Class AliyunOssServiceProvider
- * @package Calchen\Flysystem\AliyunOss
+ * Class AliyunOssServiceProvider.
  */
 class AliyunOssServiceProvider extends ServiceProvider
 {
