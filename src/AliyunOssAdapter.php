@@ -532,6 +532,7 @@ class AliyunOssAdapter extends AbstractAdapter
         $domain = $endpoint;
         if (strpos($endpoint, 'http://') == 0) {
             $domain = substr($endpoint, strlen('http://'));
+
         } elseif (strpos($endpoint, 'https://') == 0) {
             $domain = substr($endpoint, strlen('https://'));
         }
@@ -548,9 +549,7 @@ class AliyunOssAdapter extends AbstractAdapter
      */
     public static function getEndpointBaseURL($endpoint)
     {
-        if (strpos($endpoint, 'http://') == 0 ||
-            strpos($endpoint, 'https://') == 0
-        ) {
+        if (strpos($endpoint, 'http://') == 0 || strpos($endpoint, 'https://') == 0) {
             return $endpoint;
         } else {
             return "https://{$endpoint}";
