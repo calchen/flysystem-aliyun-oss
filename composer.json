@@ -8,7 +8,7 @@
         "oss",
         "Object Storage Service",
         "阿里云",
-        "象存储"
+        "对象存储"
     ],
     "license": "MIT",
     "authors": [
@@ -20,7 +20,6 @@
     "require": {
         "php": ">=5.5.9",
         "aliyuncs/oss-sdk-php": "~2.3.0",
-        "illuminate/support": "^5.5|^6.0|^7.0",
         "league/flysystem": "~1.0.53"
     },
     "autoload": {

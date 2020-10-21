@@ -2,7 +2,6 @@
 
 namespace Calchen\Flysystem\AliyunOss;
 
-use Illuminate\Support\Str;
 use League\Flysystem\Adapter\AbstractAdapter;
 use League\Flysystem\Adapter\Polyfill\NotSupportingVisibilityTrait;
 use League\Flysystem\Adapter\Polyfill\StreamedTrait;
@@ -516,7 +515,8 @@ class AliyunOssAdapter extends AbstractAdapter
      */
     public static function isEndpointCnameDomain($endpoint)
     {
-        return ! Str::endsWith($endpoint, ".aliyuncs.com") &&
+        $domain = ".aliyuncs.com";
+        return substr($endpoint, -1 * strlen($domain)) !== $domain &&
             ! OssUtil::isIPFormat(static::getEndpointDomain($endpoint));
     }
 
@@ -530,9 +530,9 @@ class AliyunOssAdapter extends AbstractAdapter
     public static function getEndpointDomain($endpoint)
     {
         $domain = $endpoint;
-        if (Str::startsWith($endpoint, 'http://')) {
+        if (strpos($endpoint, 'http://') == 0) {
             $domain = substr($endpoint, strlen('http://'));
-        } elseif (Str::startsWith($endpoint, 'https://')) {
+        } elseif (strpos($endpoint, 'https://') == 0) {
             $domain = substr($endpoint, strlen('https://'));
         }
 
@@ -548,8 +548,8 @@ class AliyunOssAdapter extends AbstractAdapter
      */
     public static function getEndpointBaseURL($endpoint)
     {
-        if (Str::startsWith($endpoint, 'http://') ||
-            Str::startsWith($endpoint, 'https://')
+        if (strpos($endpoint, 'http://') == 0 ||
+            strpos($endpoint, 'https://') == 0
         ) {
             return $endpoint;
         } else {
