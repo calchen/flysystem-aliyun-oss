@@ -3,6 +3,9 @@
 <p align="center"> 用于阿里云对象存储（OSS）的 Flysystem 适配器 </p>
 
 <p align="center">
+    <a href="https://github.styleci.io/repos/202755034">
+        <img alt="Style CI" src="https://github.styleci.io/repos/202755034/shield?style=flat">
+    </a>
     <a href="https://packagist.org/packages/calchen/flysystem-aliyun-oss">
         <img alt="Latest Stable Version" src="https://img.shields.io/packagist/v/calchen/flysystem-aliyun-oss.svg">
     </a>
